@@ -1,10 +1,9 @@
-import re
 import html
+import re
 import textwrap
 
 # from typing import override
-from mistletoe import block_token
-from mistletoe import span_token
+from mistletoe import block_token, span_token
 from mistletoe.html_renderer import HtmlRenderer
 
 

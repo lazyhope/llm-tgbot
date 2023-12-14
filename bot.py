@@ -16,7 +16,7 @@ claude = ChatAnthropic(model="claude-2.1", max_tokens=1024, temperature=0)
 
 chat_model = claude
 whisper = WhisperModel("large-v2", device="cpu", compute_type="int8")
-voice_callback = CallbackData("task", "prompt", prefix="voice_callback")
+voice_callback = CallbackData("task", prefix="voice_callback")
 
 
 @bot.message_handler(chat_id=allowed_users, commands=["dalle"])
@@ -25,7 +25,10 @@ async def generate_image(message: Message):
     from telebot.util import extract_arguments
 
     client = openai.AsyncOpenAI()
-    image_prompt = extract_arguments(message.text)
+    image_prompt = extract_arguments(message.text) or message.text
+    if not image_prompt.strip():
+        await bot.reply_to(message, text="Please specify the prompt")
+        return
     try:
         await bot.send_chat_action(chat_id=message.chat.id, action="upload_photo")
         response = await client.images.generate(
@@ -57,25 +60,25 @@ async def transcript(message: Message):
     voice_bytes = await bot.download_file(voice_file_info.file_path)
     voice_file = io.BytesIO(voice_bytes)
 
-    print("[+] Transcribing voice message...")
+    message_sent = await bot.reply_to(message, text="Transcribing voice message...")
     segments, _ = await asyncio.to_thread(whisper.transcribe, voice_file)
     transcripts = "".join(segment.text for segment in segments)
+    if not transcripts.strip():
+        await bot.edit_message_text(
+            text="No transcripts found.",
+            chat_id=message_sent.chat.id,
+            message_id=message_sent.message_id,
+        )
+        return
 
-    await bot.reply_to(
-        message,
-        text=f"Transcripts: {transcripts}",
+    await bot.edit_message_text(
+        text=transcripts,
+        chat_id=message_sent.chat.id,
+        message_id=message_sent.message_id,
         reply_markup=quick_markup(
             {
-                "❓ Ask GPT": {
-                    "callback_data": voice_callback.new(
-                        task="ask_gpt", prompt=transcripts
-                    )
-                },
-                "🎨 Dream": {
-                    "callback_data": voice_callback.new(
-                        task="dream", prompt=f"/dalle {transcripts}"
-                    )
-                },
+                "❓ Ask GPT": {"callback_data": voice_callback.new(task="ask_gpt")},
+                "🎨 Dream": {"callback_data": voice_callback.new(task="dream")},
             }
         ),
     )
@@ -85,7 +88,6 @@ async def transcript(message: Message):
 async def voice_callback_handler(call: CallbackQuery):
     callback_data: dict = voice_callback.parse(callback_data=call.data)
 
-    call.message.text = callback_data.get("prompt")
     task = callback_data.get("task")
     if task == "ask_gpt":
         await chat_query(call.message)
@@ -99,7 +101,7 @@ async def chat_query(message: Message):
 
     from telegram_html_render import TelegramHtmlRenderer
 
-    if message.text.isspace():
+    if not message.text.strip():
         await bot.reply_to(message, text="Please specify the query")
         return
     api_task = asyncio.create_task(bot.reply_to(message, text="Generating..."))
@@ -112,7 +114,7 @@ async def chat_query(message: Message):
         print(chunk.content, end="", flush=True)
 
         bot_response += chunk.content
-        if api_task.done() and not bot_response.isspace():
+        if api_task.done() and bot_response.strip():
             api_task = asyncio.create_task(
                 bot.edit_message_text(
                     text=bot_response,
@@ -125,7 +127,12 @@ async def chat_query(message: Message):
 
     print(f"\n[Bot] {bot_response}")
     print("[+] Chat message completed.")
-    if bot_response.isspace():
+    if not bot_response.strip():
+        await bot.edit_message_text(
+            text="No response received.",
+            chat_id=message_sent.chat.id,
+            message_id=message_sent.message_id,
+        )
         return
 
     try:

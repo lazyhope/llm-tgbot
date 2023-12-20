@@ -14,7 +14,7 @@ from message_db import MessageDB
 load_dotenv()
 
 # Bot setup
-asyncio_helper.proxy = os.getenv("HTTPS_PROXY")
+# asyncio_helper.proxy = os.getenv("HTTPS_PROXY")  # Optional proxy setup
 bot = AsyncTeleBot(token=os.getenv("TG_BOT", ""))
 logger.setLevel(logging.INFO)
 

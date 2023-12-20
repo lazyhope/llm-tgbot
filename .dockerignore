@@ -1,0 +1,33 @@
+# Ignore git and cache files
+.git
+.gitignore
+__pycache__
+
+# Ignore environment files
+.env
+.venv
+
+# Ignore logs
+*.log
+
+# Ignore local database files
+*.sqlite3
+
+# Ignore all .pyc, .pyo, .pyd files
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore all byte-compiled Python files
+**/__pycache__
+**/*.py[cod]
+**/*$py.class
+
+# Ignore all test and documentation directories
+**/tests/
+**/docs/
+
+# Ignore files that are generated in the build process
+dist/
+build/
+*.egg-info/

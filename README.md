@@ -4,9 +4,9 @@ This is a simple telegram bot interface that can perform tasks such as interacti
 
 ## Features
 
-- Chat interaction: The bot can interact with users using a chat model. Use the command `/clear` to clear the chat history.
-- Generate images: The bot can generate images using OpenAI's DALL-E model upon receiving the command `/dalle`.
-- Transcribe voice messages: The bot can transcribe voice messages and provide the transcription in the chat.
+- **Chat Interaction**: The bot can interact with users using a chat model, with supports of streaming and markdown rendering. Use the command `/clear` to clear the chat history.
+- **Image Generation**: The bot can generate images using OpenAI's DALL-E model upon receiving the command `/dalle`.
+- **Voice Message Transcription**: The bot can transcribe voice messages and provide the transcription in the chat. The transcriptions can also be used to perform queries for chat or image generation.
 
 ## Installation
 
@@ -33,4 +33,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+This project is licensed under the [MIT License](https://choosealicense.com/licenses/mit/).

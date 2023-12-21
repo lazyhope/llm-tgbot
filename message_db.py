@@ -16,7 +16,7 @@ embedding_function = embedding_functions.CohereEmbeddingFunction(
 
 class MessageDB:
     def __init__(self) -> None:
-        self._client = chromadb.Client()
+        self._client = chromadb.PersistentClient()
         self.collection = self._client.get_or_create_collection(
             name="message_history",
             embedding_function=embedding_function,

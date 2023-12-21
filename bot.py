@@ -29,7 +29,7 @@ db = MessageDB()
 
 # Model setup
 chat_model = ChatAnthropic(model="claude-2.1", max_tokens=4096, temperature=0)
-whisper = WhisperModel("small", device="cpu", compute_type="int8")
+whisper = WhisperModel("base", device="cpu", compute_type="int8")
 
 
 @bot.message_handler(chat_id=allowed_users, commands=["clear"])

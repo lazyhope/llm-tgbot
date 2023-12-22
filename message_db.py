@@ -40,15 +40,16 @@ class MessageDB:
             where={"chat_id": message.chat.id}, include=["metadatas", "documents"]
         )
         return [
-            AIMessage(content=content)
-            if metadata["is_bot"]
-            else HumanMessage(content=content)
-            for metadata, content in zip(docs["metadatas"], docs["documents"])
+            AIMessage(content=docs["documents"][i])
+            if docs["metadatas"][i]["is_bot"]
+            else HumanMessage(content=docs["documents"][i])
+            for i in sorted(range(len(docs["ids"])), key=lambda j: int(docs["ids"][j]))
         ]
 
     def get_relevant_history(
         self, message: Message, n_results: int = 3
     ) -> List[BaseMessage]:
+        # TODO: Determine ordering and whether to use role tags
         if message.content_type != "text":
             return []
 
